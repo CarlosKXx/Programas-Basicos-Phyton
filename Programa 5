@@ -1,0 +1,42 @@
+import sqlite3
+import tkinter as tk
+from tkinter import messagebox
+
+banco100 = sqlite3.connect("escola1000.db")
+cursor = banco100.cursor()
+cursor.execute("""CREATE TABLE IF NOT EXISTS alunos(nome TEXT, idade INTEGER)""")
+
+def salvar():
+    nome = txt_nome.get()
+    idade = txt_idade.get()
+    if nome == "" or idade == "":
+        messagebox.showwarning("Aviso", "Preencha todos os campos!")
+        return
+    if not isinstance(nome, str) or not isinstance(idade, int):
+        messagebox.showwarning("Aviso", "Nome deve ser texto e idade deve ser um número inteiro!")
+        return
+    cursor.execute("INSERT INTO alunos VALUES (?, ?)", (nome, int(idade)))
+    banco100.commit()
+    messagebox.showinfo("Sucessor", "Aluno cadastrado!")
+    txt_nome.delete(0, tk.END)
+    txt_idade.delete(0, tk.END)
+def listar():
+    lista.delete(0, tk.END)
+    cursor.execute("SELECT * FROM alunos")
+    for aluno in cursor.fetchall():
+        lista.insert(tk.END, f"{aluno[0]} - {aluno[1]} anos")
+
+janela = tk.Tk()
+janela.title("Cadastro de Alunos")
+janela.geometry("500x520")
+tk.Label(janela, text="Nome").pack()
+txt_nome = tk.Entry(janela, width=50)
+txt_nome.pack()
+tk.Label(janela, text="Idade").pack()
+txt_idade = tk.Entry(janela, width=50)
+txt_idade.pack()
+tk.Button(janela, text="Salvar", command=salvar).pack(pady=5)
+tk.Button(janela, text="Listar Alunos", command=listar).pack()
+lista = tk.Listbox(janela, width=45, height=15)
+lista.pack(pady=10)
+janela.mainloop()
